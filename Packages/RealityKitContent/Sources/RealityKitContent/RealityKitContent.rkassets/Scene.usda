@@ -1,0 +1,192 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    reorder nameChildren = ["GridMaterial", "StereoscopicVideoMaterial", "Sphere"]
+    rel material:binding = None (
+        bindMaterialAs = "weakerThanDescendants"
+    )
+
+    def Sphere "Sphere" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Root/StereoscopicVideoMaterial> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double radius = 1
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitComponent "Collider" (
+            active = false
+        )
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (0.2, 0.2, 0.2)
+                float radius = 0.05
+                token shapeType = "Sphere"
+            }
+        }
+
+        def RealityKitComponent "InputTarget" (
+            active = false
+        )
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+    }
+
+    def "GridMaterial" (
+        active = true
+        references = @Materials/GridMaterial.usda@
+    )
+    {
+        float3 xformOp:scale = (1, 1, 1)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+
+    def Material "StereoscopicVideoMaterial"
+    {
+        asset inputs:leftImage (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-406.3164, -143.16406)
+                    float2 sizeInSubgraph = (127, 53)
+                    int stackingOrderInSubgraph = 104
+                }
+            }
+        )
+        asset inputs:rightImage (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-409.7422, -52.78125)
+                    float2 sizeInSubgraph = (135.5, 53)
+                    int stackingOrderInSubgraph = 86
+                }
+            }
+        )
+        prepend token outputs:mtlx:surface.connect = </Root/StereoscopicVideoMaterial/PreviewSurface.outputs:out>
+        token outputs:realitykit:vertex.connect = </Root/StereoscopicVideoMaterial/GeometryModifier.outputs:out>
+        string[] ui:nodegraph:realitykit:node:attributesShowingChildren = []
+        float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (629.1289, 114.73828)
+        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (181.5, 99)
+        int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 98
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor.connect = </Root/StereoscopicVideoMaterial/GeometrySwitchCameraIndex.outputs:out>
+            float inputs:metallic
+            float3 inputs:normal.connect = None
+            float inputs:opacity
+            float inputs:roughness
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (376.83984, 27.734375)
+            float2 ui:nodegraph:node:size = (148.5, 199)
+            int ui:nodegraph:node:stackingOrder = 81
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:diffuseColor", "inputs:normal"]
+        }
+
+        def Shader "GeometrySwitchCameraIndex"
+        {
+            uniform token info:id = "ND_realitykit_geometry_switch_cameraindex_color3"
+            color3f inputs:left.connect = </Root/StereoscopicVideoMaterial/Image.outputs:out>
+            color3f inputs:mono
+            color3f inputs:right.connect = </Root/StereoscopicVideoMaterial/Image_1.outputs:out>
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (119.30859, -40.58203)
+            float2 ui:nodegraph:node:size = (237, 145)
+            int ui:nodegraph:node:stackingOrder = 82
+        }
+
+        def Shader "Image"
+        {
+            uniform token info:id = "ND_image_color3"
+            color3f inputs:default
+            asset inputs:file.connect = </Root/StereoscopicVideoMaterial.inputs:leftImage>
+            float2 inputs:texcoord
+            string inputs:uaddressmode
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-206.51172, -68.33984)
+            float2 ui:nodegraph:node:size = (148.5, 199)
+            int ui:nodegraph:node:stackingOrder = 105
+        }
+
+        def Shader "Image_1"
+        {
+            uniform token info:id = "ND_image_color3"
+            color3f inputs:default
+            asset inputs:file.connect = </Root/StereoscopicVideoMaterial.inputs:rightImage>
+            string inputs:filtertype
+            float2 inputs:texcoord
+            string inputs:uaddressmode
+            string inputs:vaddressmode
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-217.0664, 135.27734)
+            float2 ui:nodegraph:node:size = (148.5, 199)
+            int ui:nodegraph:node:stackingOrder = 87
+        }
+
+        def Shader "Multiply"
+        {
+            uniform token info:id = "ND_multiply_vector3"
+            float3 inputs:in1.connect = </Root/StereoscopicVideoMaterial/Normal.outputs:out>
+            float3 inputs:in2.connect = </Root/StereoscopicVideoMaterial/Constant.outputs:out>
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (227.02734, 162.14453)
+            float2 ui:nodegraph:node:size = (60, 36)
+            int ui:nodegraph:node:stackingOrder = 92
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+        }
+
+        def Shader "Constant"
+        {
+            uniform token info:id = "ND_constant_vector3"
+            float3 inputs:value = (0, -1, 0)
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (87.21484, 204.34375)
+            float2 ui:nodegraph:node:size = (154.5, 53)
+            int ui:nodegraph:node:stackingOrder = 103
+        }
+
+        def Shader "GeometryModifier"
+        {
+            uniform token info:id = "ND_realitykit_geometrymodifier_vertexshader"
+            float3 inputs:bitangent
+            color4f inputs:color
+            float3 inputs:modelPositionOffset
+            float3 inputs:normal.connect = </Root/StereoscopicVideoMaterial/Multiply.outputs:out>
+            float2 inputs:uv0
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (356.8125, 401.4961)
+            float2 ui:nodegraph:node:size = (196.5, 325)
+            int ui:nodegraph:node:stackingOrder = 100
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:normal"]
+        }
+
+        def Shader "Normal"
+        {
+            uniform token info:id = "ND_normal_vector3"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (75.05469, 101.49219)
+            float2 ui:nodegraph:node:size = (128.5, 40)
+            int ui:nodegraph:node:stackingOrder = 102
+        }
+    }
+}
+
